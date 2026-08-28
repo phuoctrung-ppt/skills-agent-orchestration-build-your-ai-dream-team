@@ -1,0 +1,36 @@
+{
+  "projects": [
+    {
+      "name": "Contributor Onboarding",
+      "owner": "Maya Chen",
+      "status": "On track",
+      "recentActivity": "Published the updated local setup guide and welcomed three new contributors.",
+      "priority": "High",
+      "summary": "Make the first contribution feel clear, friendly, and achievable."
+    },
+    {
+      "name": "Accessibility Refresh",
+      "owner": "Jordan Williams",
+      "status": "In progress",
+      "recentActivity": "Completed keyboard navigation checks for the settings flow and opened two follow-up issues.",
+      "priority": "High",
+      "summary": "Remove barriers across the product with practical, measurable accessibility improvements."
+    },
+    {
+      "name": "Insights Dashboard",
+      "owner": "Priya Shah",
+      "status": "At risk",
+      "recentActivity": "The data contract is awaiting review from the analytics team before integration can continue.",
+      "priority": "Medium",
+      "summary": "Give teams a shared view of the signals that guide their next decision."
+    },
+    {
+      "name": "Documentation Hub",
+      "owner": "Alex Rivera",
+      "status": "Planning",
+      "recentActivity": "Collected feedback from maintainers and drafted the first information architecture proposal.",
+      "priority": "Low",
+      "summary": "Bring guides, decisions, and release context together in one easy-to-navigate home."
+    }
+  ]
+}

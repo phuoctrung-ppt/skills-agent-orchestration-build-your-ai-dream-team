@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Project Pulse</title>
+    <meta name="description" content="A contributor-friendly overview of current project status and activity.">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to project list</a>
+    <main class="dashboard" id="main-content">
+      <header class="dashboard-header">
+        <p class="eyebrow">Team overview</p>
+        <h1>Project Pulse</h1>
+        <p class="dashboard-intro">
+          See what is moving, who is leading it, and where the team should focus next.
+        </p>
+      </header>
+
+      <section class="projects-section" aria-labelledby="projects-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Current portfolio</p>
+            <h2 id="projects-heading">Projects</h2>
+          </div>
+          <p class="project-count" id="project-count" aria-live="polite"></p>
+        </div>
+
+        <div class="project-grid" id="project-list" aria-live="polite" aria-busy="true">
+          <p class="state-message" id="loading-state" role="status">Loading projects...</p>
+        </div>
+      </section>
+    </main>
+
+    <noscript>
+      <p class="state-message">Project Pulse needs JavaScript enabled to load project data.</p>
+    </noscript>
+
+    <script>
+      (() => {
+        const projectList = document.getElementById("project-list");
+        const projectCount = document.getElementById("project-count");
+        const requiredFields = ["name", "owner", "status", "recentActivity", "priority"];
+
+        function showState(message, stateClass) {
+          projectList.replaceChildren();
+          const state = document.createElement("p");
+          state.className = `state-message ${stateClass}`;
+          state.setAttribute("role", "status");
+          state.textContent = message;
+          projectList.append(state);
+          projectList.setAttribute("aria-busy", "false");
+          projectCount.textContent = "";
+        }
+
+        function validateProjects(data) {
+          if (!data || !Array.isArray(data.projects)) {
+            throw new Error("Project data must contain a projects array.");
+          }
+
+          data.projects.forEach((project, index) => {
+            if (!project || requiredFields.some((field) => typeof project[field] !== "string" || !project[field].trim())) {
+              throw new Error(`Project ${index + 1} is missing a required field.`);
+            }
+          });
+
+          return data.projects;
+        }
+
+        function createDetail(label, value, modifier) {
+          const detail = document.createElement("div");
+          detail.className = `project-detail ${modifier}`;
+
+          const detailLabel = document.createElement("dt");
+          detailLabel.textContent = label;
+          const detailValue = document.createElement("dd");
+          detailValue.textContent = value;
+
+          detail.append(detailLabel, detailValue);
+          return detail;
+        }
+
+        function createProjectCard(project) {
+          const card = document.createElement("article");
+          card.className = "project-card";
+
+          const cardHeader = document.createElement("header");
+          cardHeader.className = "project-card-header";
+
+          const name = document.createElement("h3");
+          name.textContent = project.name;
+
+          const owner = document.createElement("p");
+          owner.className = "project-owner";
+          owner.textContent = `Owned by ${project.owner}`;
+          cardHeader.append(name, owner);
+
+          const badges = document.createElement("div");
+          badges.className = "project-badges";
+          badges.setAttribute("aria-label", "Project indicators");
+
+          const status = document.createElement("span");
+          status.className = "status-badge";
+          status.dataset.status = project.status.toLowerCase().replace(/\s+/g, "-");
+          status.textContent = `Status: ${project.status}`;
+
+          const priority = document.createElement("span");
+          priority.className = "priority-badge";
+          priority.dataset.priority = project.priority.toLowerCase().replace(/\s+/g, "-");
+          priority.textContent = `Priority: ${project.priority}`;
+          badges.append(status, priority);
+
+          const details = document.createElement("dl");
+          details.className = "project-details";
+          details.append(createDetail("Recent activity", project.recentActivity, "activity-detail"));
+
+          if (typeof project.summary === "string" && project.summary.trim()) {
+            const summary = document.createElement("p");
+            summary.className = "project-summary";
+            summary.textContent = project.summary;
+            card.append(cardHeader, badges, details, summary);
+          } else {
+            card.append(cardHeader, badges, details);
+          }
+
+          return card;
+        }
+
+        function renderProjects(projects) {
+          if (projects.length === 0) {
+            showState("No projects are available right now.", "empty-state");
+            return;
+          }
+
+          projectList.replaceChildren(...projects.map(createProjectCard));
+          projectList.setAttribute("aria-busy", "false");
+          projectCount.textContent = `${projects.length} ${projects.length === 1 ? "project" : "projects"}`;
+        }
+
+        fetch("project-data.json")
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`Project data could not be loaded (HTTP ${response.status}).`);
+            }
+            return response.json();
+          })
+          .then((data) => renderProjects(validateProjects(data)))
+          .catch((error) => {
+            showState(`Unable to load projects. ${error.message}`, "error-state");
+          });
+      })();
+    </script>
+  </body>
+</html>
